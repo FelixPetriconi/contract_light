@@ -12,6 +12,7 @@
 
 #include <type_traits>
 #include "contract_light_helper.hpp"
+#include "contract_light_traits.hpp"
 
 namespace contract_light
 {
@@ -57,22 +58,6 @@ namespace contract_light
 
       void handleFailedInvariant(const char* filename, int lineNumber) NOEXCEPT;
 
-
-      template <typename T>
-      class has_invariant
-      {
-        using Yes = char;
-        struct No { char dummy[2]; };
-
-        template<typename U>
-        static auto try_method(U* p) -> decltype(p->invariant(), Yes(0));
-
-        template<typename U>
-        static No try_method(...);
-
-      public:
-        static const bool value = sizeof(try_method<T>(nullptr)) == sizeof(Yes);
-      };
 
       template <typename T>
       struct ContractContext {

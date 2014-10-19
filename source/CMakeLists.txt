@@ -13,6 +13,7 @@ set(SOURCE
 set(HEADERS
   ../include/contract_light.hpp
   ../include/contract_light_helper.hpp  
+  ../include/contract_light_traits.hpp
 )
 
 add_library(contract_light ${SOURCE} ${HEADERS})
