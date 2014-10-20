@@ -6,16 +6,47 @@ A library that offers in a light-weight manner Design by Contract constructs
 
 Motivation
 ----------
+Currently C++ 11/14 does not support natively the concept of [Design by Contract](http://en.wikipedia.org/wiki/Design_by_contract). Several libraries are available that support Design by Contract, but all that I know of use heavily preprocessor makros. So this is my attempt to support this feature with pure C++. 
   
-Contract Light Overveiw
-------------------
+Contract Light Overview
+-----------------------
+This library supports pre-condition, post-condition and invariants for classes and structs.
 
+~~~
+class Rect : public contract_light::Contract
+{
+  int w_;
+  int h_;
+public:
+  Rect() : w_(0), h_(0) {}
+  
+  ~Rect() {
+    INVARIANT;
+  }
+  
+  void setWidth(int newW) {
+    PRECONDITION [&] { return newW >= 0; };
+    POSTCONDITION [&, this] { return newW == w_; };
+    w_ = newW;
+  }
+  
+  int size() const {
+    int result;
+    POSTCONDITION [&] { return result == w_ * h_; }
+    result = w_ * h_;
+    
+    return result;
+  }
+  
+  bool invariant() const {
+    return w_ >= 0 && h_ >= 0;
+  }
+};
+~~~
 
 Documentation
 -------------
-  Online Documentation is available on [GitHub.io] (http://felixpetriconi.github.io/contract_light/index.html) as well.
-  
-  There is the begin of a tutorial in the [tutorial section](http://felixpetriconi.github.io/contract_light/md__t_u_t_o_r_i_a_l.html)
+  to be done
 
 Author 
 ------
@@ -48,9 +79,8 @@ Platform
 --------
 | Compiler | Status |
 -----------|---------
-| Visual Studio 2012 x64 | All tests pass |
 | Visual Studio 2013 x64 | All tests pass |
-| Debian x64, Clang 3.4  | All tests pass |
+
 
 Installation Win
 ----------------
@@ -64,6 +94,6 @@ Installation Win
   
 ToDo
 ----
-  See issue list of [open enhancements] (https://github.com/FelixPetriconi/contract_light/issues?labels=enhancement&page=1&state=open)
+  to be done 
 
 
