@@ -98,7 +98,7 @@ TEST_F(ContractTestOnClassWithInvariant, ThatACallToAFullfilledPreconditionDoesN
   EXPECT_NO_THROW(sut.setX(1));
   EXPECT_EQ(1, sut.invariantWasCalled);
   EXPECT_TRUE(sut.preConditionWasCalled);
-  EXPECT_TRUE(sut.postConditionWasCalled);
+  EXPECT_EQ(1, sut.postConditionWasCalled);
 }
 
 TEST_F(ContractTestOnClassWithInvariant, ThatACallToAFailingPreconditionFireTheSetExceptionAndThatTheInvariantWasCalledAndThatTheStateOfTheClassDoesNotChange)
@@ -136,7 +136,7 @@ TEST_F(ContractTestOnClassWithInvariant, ThatACallToAFailingPostConditionFireThe
   EXPECT_TRUE(postConditionHasFailedFlag);
 
   EXPECT_EQ(1, sut.invariantWasCalled);
-  EXPECT_TRUE(sut.postConditionWasCalled);
+  EXPECT_EQ(1, sut.postConditionWasCalled);
 }
 
 namespace
