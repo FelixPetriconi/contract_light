@@ -13,6 +13,7 @@
 #include <type_traits>
 #include "contract_light_helper.hpp"
 #include "contract_light_traits.hpp"
+#include "contract_light_context.hpp"
 
 namespace contract_light
 {
@@ -49,56 +50,33 @@ namespace contract_light
       }
     };
 
-
-    namespace contract_detail
+    namespace contract_detail 
     {
+
       void handleFailedPreCondition(const char* filename, int lineNumber);
 
       void handleFailedPostCondition(const char* filename, int lineNumber);
 
       void handleFailedInvariant(const char* filename, int lineNumber) NOEXCEPT;
 
-
-      template <typename T>
-      struct ContractContext {
-        using provider_type = T;
-        const char* fileName;
-        const int line;
-        const T& provider;
-        ContractContext(T& p, const char* fn, int ln) : provider(p), fileName(fn), line(ln) {}
-      };
-
-
-      template <typename T>
-      struct PreConditionContext : public ContractContext < T >
-      {
-        PreConditionContext(T& p, const char* fn, int ln) : ContractContext<T>(p, fn, ln) {}
-      };
-
-      template <typename T>
-      struct PostConditionContext : public ContractContext < T >
-      {
-        PostConditionContext(T& p, const char* fn, int ln) : ContractContext<T>(p, fn, ln) {}
-      };
-
       struct NoInvariantPolicy
       {
         template <typename C>
-        static void pushInvariantOnStack(C&) NOEXCEPT {}
+        static void pushInvariantOnStack(C&) NOEXCEPT{}
 
-        template <typename C>
-        static void checkInvariant(C&) NOEXCEPT {}
+          template <typename C>
+        static void checkInvariant(C&) NOEXCEPT{}
       };
 
       struct InvariantPolicy
       {
         template <typename Context>
-        static void pushInvariantOnStack(Context& ctx) NOEXCEPT {
+        static void pushInvariantOnStack(Context& ctx) NOEXCEPT{
           ctx.provider.pushInvariantOnStack();
         }
 
-        template <typename Context>
-        static void checkInvariant(Context& ctx) NOEXCEPT {
+          template <typename Context>
+        static void checkInvariant(Context& ctx) NOEXCEPT{
           ctx.provider.popInvariantFromStack();
           if (ctx.provider.stackEmpty() && !ctx.provider.invariant()) {
             handleFailedInvariant(ctx.fileName, ctx.line);
