@@ -11,8 +11,9 @@ Currently C++ 11/14 does not support natively the concept of [Design by Contract
 Contract Light Overview
 -----------------------
 This library supports pre-condition, post-condition and invariants for classes and structs.
+Simple example of a rectangular implementation.
 
-~~~
+~~~C++
 class Rect : public contract_light::Contract
 {
   int w_;
@@ -21,13 +22,21 @@ public:
   Rect() : w_(0), h_(0) {}
   
   ~Rect() {
+    // checking that the invariants are fulfilled, even before destruction
     INVARIANT;
   }
   
   void setWidth(int newW) {
+    // setting the pre condition of this method; the invariant is checked 
+    // once at the end of the scope
     PRECONDITION [&] { return newW >= 0; };
+    // setting the post condition; the invariant is checked only once after 
+    // leaving the scope, regardless of the number of pre- and/or post-conditions
     POSTCONDITION [&, this] { return newW == w_; };
     w_ = newW;
+    
+    // There is no need to define here INVARIANT here. This is done automatically
+    // whenever there is a bool invariant() const method is defined
   }
   
   int size() const {
@@ -80,7 +89,7 @@ Platform
 | Compiler | Status |
 -----------|---------
 | Visual Studio 2013 x64 | All tests pass |
-
+| clang 3.6 | All tests pass |
 
 Installation Win
 ----------------
@@ -91,6 +100,14 @@ Installation Win
   * Execute cmake -G "Visual Studio 11 Win64" ..\contract_light_build
   * Open created solution in .\alb_build\AllocatorBuilder.sln
   * Compile and run all test
+
+Installation Linux
+------------------
+  * Clone into e.g. ~/contract_light via "git clone http://github.com/FelixPetriconi/contract_light"
+  * Call   mkdir contract_light_build && cd contract_light_build
+  * Call   cmake -G "Unix Makefiles" ../contract_light 
+  * Build and test with   make && ./test/contract_light_test
+  
   
 ToDo
 ----
