@@ -10,6 +10,9 @@ if(MSVC AND MSVC_VERSION EQUAL 1700)
   add_definitions(-D_VARIADIC_MAX=10)
 endif ()
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")  
+  set(CMAKE_CXX_FLAGS "-O3 -Wall -std=c++11 -fcxx-exceptions")
+endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/../include")
 include_directories("${PROJECT_SOURCE_DIR}/../tools/gtest-1.7.0/include")

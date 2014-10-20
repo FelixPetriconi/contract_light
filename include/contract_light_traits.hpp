@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace contract_light
 {
   namespace v_100 

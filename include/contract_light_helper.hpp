@@ -19,8 +19,10 @@ CONCATENATE(str, __COUNTER__)
 CONCATENATE(str, __LINE__)
 #endif
 
+#ifdef _MSC_VER 
 #if _MSC_VER < 1900
 #define NOEXCEPT throw()
+#endif
 #else
-#define NOEXCEPT noexept()
+#define NOEXCEPT noexcept
 #endif

@@ -10,10 +10,12 @@
 
 #pragma once
 
-#include <type_traits>
 #include "contract_light_helper.hpp"
 #include "contract_light_traits.hpp"
 #include "contract_light_context.hpp"
+
+#include <type_traits>
+#include <utility>
 
 namespace contract_light
 {

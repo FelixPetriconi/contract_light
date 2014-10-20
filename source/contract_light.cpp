@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////
 
 #include "contract_light.hpp"
-
 #include <iostream>
 
 namespace {
@@ -34,19 +33,19 @@ namespace {
 
 namespace contract_light {
   namespace v_100 {
-    void setHandlerFailedPreCondition(PreConditionFailedFunction h) {
+    void setHandlerFailedPreCondition(PreConditionFailedFunction h) NOEXCEPT {
       if (h != nullptr) {
         preConditionFailed = h;
       }
     }
 
-    void setHandlerFailedPostCondition(PostConditionFailedFunction h) {
+    void setHandlerFailedPostCondition(PostConditionFailedFunction h) NOEXCEPT {
       if (h != nullptr) {
         postConditionFailed = h;
       }
     }
 
-    void setHandlerFailedInvariant(InvariantFailedFunction h) {
+    void setHandlerFailedInvariant(InvariantFailedFunction h) NOEXCEPT {
       if (h != nullptr) {
         invariantFailed = h;
       }
@@ -61,7 +60,7 @@ namespace contract_light {
         postConditionFailed(filename, lineNumber);
       }
 
-      void handleFailedInvariant(const char* filename, int lineNumber)  throw() {
+      void handleFailedInvariant(const char* filename, int lineNumber)  NOEXCEPT {
         invariantFailed(filename, lineNumber);
       }
     }

@@ -20,14 +20,14 @@ namespace
     int y;
     mutable int invariantWasCalled;
     bool preConditionWasCalled;
-    bool postConditionWasCalled;
+    mutable int postConditionWasCalled;
 
     TestClassWithInvariant()
       : x(0)
       , y(0)
       , invariantWasCalled(0)
       , preConditionWasCalled(false)
-      , postConditionWasCalled(false)
+      , postConditionWasCalled(0)
     {}
 
     ~TestClassWithInvariant() {
@@ -36,12 +36,12 @@ namespace
 
     void setX(int newX) {
       PRECONDITION[&, this]() -> bool { preConditionWasCalled = true;  return newX > 0; };
-      POSTCONDITION[&, this]()-> bool { postConditionWasCalled = true;  return newX == x; };
+      POSTCONDITION[&, this]()-> bool { ++postConditionWasCalled;  return newX == x; };
       x = newX;
     }
 
     void doubleX(int newX) {
-      POSTCONDITION[&, this]()-> bool { postConditionWasCalled = true;  return x == newX * 2; };
+      POSTCONDITION[&, this]()-> bool { ++postConditionWasCalled;  return x == newX * 2; };
 
       x = newX * 3; // This is of course wrong and should be caught by the post condition
     }
@@ -56,19 +56,16 @@ namespace
   struct PreConditionFailedEx : public std::exception
   {};
 
-  struct PostConditionFailedEx : public std::exception
-  {};
-
   void myPreConditionFailedHandler(const char* , int ) {
     throw PreConditionFailedEx();
   }
 
+  bool postConditionHasFailedFlag = false;
   void myPostConditionFailedHandler(const char*, int) {
-    throw PostConditionFailedEx();
+    postConditionHasFailedFlag = true;
   }
 
   bool invariantHasFailedFlag = false;
-
   void myInvariantFailedHandler(const char* , int ) {
     invariantHasFailedFlag = true;
   }
@@ -82,6 +79,7 @@ protected:
     contract_light::setHandlerFailedPreCondition(&myPreConditionFailedHandler);
     contract_light::setHandlerFailedPostCondition(&myPostConditionFailedHandler);
     contract_light::setHandlerFailedInvariant(&myInvariantFailedHandler);
+    postConditionHasFailedFlag = false;
     invariantHasFailedFlag = false;
   }
 
@@ -134,9 +132,10 @@ TEST_F(ContractTestOnClassWithInvariant, ThatACallToAFailingPreConditionFireTheS
 
 TEST_F(ContractTestOnClassWithInvariant, ThatACallToAFailingPostConditionFireTheSetExceptionAndThatTheInvariantWasCalled)
 {
-  EXPECT_THROW(sut.doubleX(2), PostConditionFailedEx);
+  EXPECT_NO_THROW(sut.doubleX(2));
+  EXPECT_TRUE(postConditionHasFailedFlag);
 
-  EXPECT_EQ(0, sut.invariantWasCalled);
+  EXPECT_EQ(1, sut.invariantWasCalled);
   EXPECT_TRUE(sut.postConditionWasCalled);
 }
 
@@ -229,7 +228,8 @@ TEST_F(ContractTestOnClassWithOutInvariant, ThatACallToAFailingPreConditionFireT
 
 TEST_F(ContractTestOnClassWithOutInvariant, ThatACallToAFailingPostConditionFireTheSetException)
 {
-  EXPECT_THROW(sut.doubleX(2), PostConditionFailedEx);
+  EXPECT_NO_THROW(sut.doubleX(2));
+  EXPECT_TRUE(postConditionHasFailedFlag);
 
   EXPECT_TRUE(sut.postConditionWasCalled);
 }

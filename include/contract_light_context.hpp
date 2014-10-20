@@ -23,9 +23,10 @@ namespace contract_light
       template <typename T>
       struct ContractContext {
         using provider_type = T;
+        const T& provider;
         const char* fileName;
         const int line;
-        const T& provider;
+
         ContractContext(T& p, const char* fn, int ln) : provider(p), fileName(fn), line(ln) {}
       };
 
