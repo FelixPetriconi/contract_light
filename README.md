@@ -6,7 +6,7 @@ A library that offers in a light-weight manner Design by Contract constructs
 
 Motivation
 ----------
-Currently C++ 11/14 does not support natively the concept of [Design by Contract](http://en.wikipedia.org/wiki/Design_by_contract). Several libraries are available that support Design by Contract, but all that I know of use heavily preprocessor makros. So this is my attempt to support this feature with pure C++. 
+Currently C++ 11/14 does not support natively the concept of [Design by Contract](http://en.wikipedia.org/wiki/Design_by_contract). Several libraries are available that support Design by Contract, but all that I know of, use heavily preprocessor makros. So this is my attempt to support this feature with pure C++. 
   
 Contract Light Overview
 -----------------------
@@ -14,7 +14,10 @@ This library supports pre-condition, post-condition and invariants for classes a
 Simple example of a rectangular implementation.
 
 ~~~C++
-class Rect : public contract_light::Contract
+class Rect : 
+  // derive from this base, if an invariant is defined. If no invariant is defined
+  // no need to do it
+  public contract_light::Contract 
 {
   int w_;
   int h_;
@@ -112,5 +115,3 @@ Installation Linux
 ToDo
 ----
   to be done 
-
-
