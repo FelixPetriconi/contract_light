@@ -27,8 +27,11 @@ namespace contract_light
       template <typename T>
       class has_invariant
       {
-        template<typename U>
-        static auto try_method(U* p) -> decltype(p->invariant(), std::true_type());
+        template<typename U, bool(U::*)() const> 
+        struct SFINAE {};
+        
+        template<typename U> 
+        static std::true_type try_method(SFINAE<U, &U::invariant>*);
 
         template<typename U>
         static std::false_type try_method(...);
