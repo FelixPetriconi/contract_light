@@ -59,7 +59,7 @@ namespace contract_light {
         preConditionFailed(filename, lineNumber);
       }
 
-      void handleFailedPostCondition(const char* filename, int lineNumber) {
+      void handleFailedPostCondition(const char* filename, int lineNumber) NOEXCEPT {
         postConditionFailed(filename, lineNumber);
       }
 
