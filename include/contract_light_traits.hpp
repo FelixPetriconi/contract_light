@@ -21,6 +21,9 @@ namespace contract_light
   {
     namespace contract_detail
     {
+      /**
+       * Traits checks if the given type has a bool invariant() const method
+       */
       template <typename T>
       class has_invariant
       {
@@ -34,6 +37,12 @@ namespace contract_light
       public:
         static const bool value = result_type::value;
       };
+
+      /**
+       * Typed If, thanks to Walter E. Brown from CppCon 2014 
+       */
+      template <bool F, typename X, typename Y>
+      using IF_t = typename std::conditional<F, X, Y>::type;
 
     }
   }

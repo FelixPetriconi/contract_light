@@ -22,9 +22,9 @@ namespace contract_light
   {
     namespace contract_detail
     {
-
       template <typename T>
-      struct ContractContext {
+      struct ContractContext 
+      {
         using provider_type = T;
         const T& provider;
         const char* fileName;

@@ -86,7 +86,6 @@ namespace contract_light
 
     namespace contract_detail 
     {
-
       void handleFailedPreCondition(const char* filename, int lineNumber);
 
       void handleFailedPostCondition(const char* filename, int lineNumber) NOEXCEPT;
@@ -98,7 +97,7 @@ namespace contract_light
         template <typename C>
         static void pushInvariantOnStack(C&) NOEXCEPT{}
 
-          template <typename C>
+        template <typename C>
         static void checkInvariant(C&) NOEXCEPT{}
       };
 
@@ -109,7 +108,7 @@ namespace contract_light
           ctx.provider.pushInvariantOnStack();
         }
 
-          template <typename Context>
+        template <typename Context>
         static void checkInvariant(Context& ctx) NOEXCEPT{
           ctx.provider.popInvariantFromStack();
           if (ctx.provider.stackEmpty() && !ctx.provider.invariant()) {
@@ -122,13 +121,11 @@ namespace contract_light
       template <typename Context, typename Op>
       class PreCondition
       {
-      public:
         using Provider = typename Context::provider_type;
-        using InvariantPolicy = typename std::conditional <
-          has_invariant<Provider>::value,
-          InvariantPolicy,
-          NoInvariantPolicy
-        > ::type;
+
+        using InvariantPolicy = IF_t<has_invariant<Provider>::value, 
+                                     InvariantPolicy, 
+                                     NoInvariantPolicy>;
 
         static_assert(!has_invariant<Provider>::value ||
           (has_invariant<Provider>::value && std::is_base_of<Contract, Provider>::value),
@@ -137,9 +134,8 @@ namespace contract_light
         const Context _context;
 
       public:
-        PreCondition(Context&& ctx, Op&& op)
-          : _context(std::forward<Context>(ctx))
-        {
+        PreCondition(Context&& ctx, Op&& op) : _context(std::forward<Context>(ctx)) {
+          
           static_assert(std::is_same<bool, decltype(op())>::value,
             "Pre-Condition must be a callable object returning a boolean");
 
@@ -160,11 +156,10 @@ namespace contract_light
       class PostCondition
       {
         using Provider = typename Context::provider_type;
-        using InvariantPolicy = typename std::conditional <
-          has_invariant<Provider>::value,
-          InvariantPolicy,
-          NoInvariantPolicy
-        > ::type;
+
+        using InvariantPolicy = IF_t<has_invariant<Provider>::value,
+                                      InvariantPolicy,
+                                      NoInvariantPolicy>;
 
         static_assert(!has_invariant<Provider>::value ||
           (has_invariant<Provider>::value && std::is_base_of<Contract, Provider>::value),
@@ -176,8 +171,8 @@ namespace contract_light
       public:
         PostCondition(Context&& ctx, Op&& op)
           : _context(std::forward<Context>(ctx))
-          , _op(std::forward<Op>(op))
-        {
+          , _op(std::forward<Op>(op)) {
+          
           static_assert(std::is_same<bool, decltype(op())>::value,
             "Post-Condition must be a callable object returning a boolean");
 
@@ -215,16 +210,14 @@ namespace contract_light
 
 
       template <typename T, typename Op>
-      PreCondition<PreConditionContext<T>, Op> operator+(PreConditionContext<T>&& ctx, Op&& op)
-      {
+      PreCondition<PreConditionContext<T>, Op> operator+(PreConditionContext<T>&& ctx, Op&& op) {
         using Context = PreConditionContext < T > ;
         return PreCondition<Context, Op>(std::forward<Context>(ctx), std::forward<Op>(op));
       }
 
 
       template <typename T, typename Op>
-      PostCondition<PostConditionContext<T>, Op> operator+(PostConditionContext<T>&& ctx, Op&& op)
-      {
+      PostCondition<PostConditionContext<T>, Op> operator+(PostConditionContext<T>&& ctx, Op&& op) {
         using Context = PostConditionContext < T > ;
         return PostCondition<Context, Op>(std::forward<Context>(ctx), std::forward<Op>(op));
       }
