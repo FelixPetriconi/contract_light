@@ -15,7 +15,10 @@
 
 namespace contract_light
 {
-  inline namespace v_100
+#ifdef HAS_INLINE_NAMESPACE
+	inline
+#endif
+  namespace v_100
   {
     namespace contract_detail
     {
