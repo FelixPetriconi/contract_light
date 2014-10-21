@@ -32,6 +32,9 @@ namespace {
 
 
 namespace contract_light {
+#ifdef HAS_INLINE_NAMESPACE
+  inline
+#endif
   namespace v_100 {
     void setHandlerFailedPreCondition(PreConditionFailedFunction h) NOEXCEPT {
       if (h != nullptr) {

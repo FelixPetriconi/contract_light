@@ -15,7 +15,7 @@
 
 namespace contract_light
 {
-  namespace v_100
+  inline namespace v_100
   {
     namespace contract_detail
     {

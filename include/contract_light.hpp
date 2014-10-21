@@ -19,17 +19,49 @@
 
 namespace contract_light
 {
+#ifdef HAS_INLINE_NAMESPACE
+  inline
+#endif
   namespace v_100 {
-    using PreConditionFailedFunction = void(*)(const char*, int);
+    /**
+     * Function signature to handle failed preconditions
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
+    using PreConditionFailedFunction = void(*)(const char* fileName, int line);
 
+    /**
+     * Function signature to handle failed postconditions
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
     using PostConditionFailedFunction = void(*)(const char*, int);
 
+    /**
+     * Function signature to handle failed invariants
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
     using InvariantFailedFunction = void(*)(const char*, int);
 
+    /**
+      * Set an alternate pre condition failed handler. The default version
+      * just prints the failure location to std::cout
+      */
     void setHandlerFailedPreCondition(PreConditionFailedFunction) NOEXCEPT;
 
+    /**
+      * Set an alternate post condition failed handler. The default version
+      * just prints the failure location to std::cout
+      * The function itself must not throw!
+      */
     void setHandlerFailedPostCondition(PostConditionFailedFunction) NOEXCEPT;
 
+    /**
+      * Set an alternate invariant failed handler. The default version
+      * just prints the failure location to std::cout
+      * The function itself must not throw!
+      */
     void setHandlerFailedInvariant(InvariantFailedFunction) NOEXCEPT;
 
 
@@ -57,7 +89,7 @@ namespace contract_light
 
       void handleFailedPreCondition(const char* filename, int lineNumber);
 
-      void handleFailedPostCondition(const char* filename, int lineNumber);
+      void handleFailedPostCondition(const char* filename, int lineNumber) NOEXCEPT;
 
       void handleFailedInvariant(const char* filename, int lineNumber) NOEXCEPT;
 
@@ -203,18 +235,35 @@ namespace contract_light
       }
     }
   }
+#ifndef HAS_INLINE_NAMESPACE
   using namespace v_100;
+#endif
 }
 
 
 
-
+/**
+ * Defines a precondtion. Must be followed by a callable object.
+ * Several ones can be defined within a single function
+ * the current scope is left. As well the invariant is checked whenever one is defined.
+ * E.g. PRECONDITION [this]{ return myMember_ > 42;};
+  */
 #define PRECONDITION auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =                \
       ::contract_light::contract_detail::PreConditionContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__) + 
 
+/**
+ * Defines a postcondtion. Must be followed by a callable object.
+ * Several ones can be defined within a single function. The check is executed whenever
+ * the current scope is left. As well the invariant is checked whenever one is defined.
+ * E.g. POSTCONDITION [this]{ return result > 42;};
+  */
 #define POSTCONDITION auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =               \
       ::contract_light::contract_detail::PostConditionContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__) + 
 
+/**
+ * Defines that the invariant shall be called whenever the current scope is left
+ * E.g. INVARIANT;
+  */
 #define INVARIANT auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =                   \
       ::contract_light::contract_detail::makeInvariant(::contract_light::contract_detail::ContractContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__));
 

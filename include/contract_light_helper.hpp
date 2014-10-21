@@ -23,6 +23,11 @@ CONCATENATE(str, __LINE__)
 #if _MSC_VER < 1900
 #define NOEXCEPT throw()
 #endif
+#if _MSC_VER > 1900
+#define HAS_INLINE_NAMESPACE
+#endif
 #else
 #define NOEXCEPT noexcept
+#define HAS_INLINE_NAMESPACE
 #endif
+
