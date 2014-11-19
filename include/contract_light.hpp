@@ -234,7 +234,11 @@ namespace contract_light
 #endif
 }
 
-
+/**
+ * This makro must be set inside the member definition area of a class that has
+ * an invariant. It creates a member and it's accessor that is used by the 
+ * pre-and post-condtions and invariants.
+ */
 #define CONTRACTOR                                                            \
 public:                                                                       \
   ::contract_light::v_100::Contract& contract_light_contractor() const { return _contract_light_contractor; } \

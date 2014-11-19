@@ -15,7 +15,7 @@
 namespace contract_light
 {
 #ifdef HAS_INLINE_NAMESPACE
-	inline
+  inline
 #endif
   namespace v_100 
   {
@@ -41,13 +41,9 @@ namespace contract_light
         static const bool value = result_type::value;
       };
 
-
       /**
-       * Typed If, thanks to Walter E. Brown from CppCon 2014 
-       */
-      template <bool F, typename X, typename Y>
-      using IF_t = typename std::conditional<F, X, Y>::type;
-
+      * Traits checks if the given type has a contract_light_contractor method
+      */
       template <typename T>
       class has_contractor
       {
@@ -61,6 +57,13 @@ namespace contract_light
       public:
         static const bool value = result_type::value;
       };
+
+      /**
+       * Typed If, thanks to Walter E. Brown from CppCon 2014 
+       */
+      template <bool F, typename X, typename Y>
+      using IF_t = typename std::conditional<F, X, Y>::type;
+
     }
   }
 }
