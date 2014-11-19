@@ -14,11 +14,11 @@ This library supports pre-condition, post-condition and invariants for classes a
 Simple example of a rectangular implementation.
 
 ~~~C++
-class Rect : 
-  // derive from this base, if an invariant is defined. If no invariant is defined
-  // no need to do it
-  public contract_light::Contract 
+class Rect 
 {
+  // Use this define if an invariant is defined. If no invariant is defined
+  // no need to do it
+  CONTRACTOR
   int w_;
   int h_;
 public:

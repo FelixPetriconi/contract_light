@@ -74,13 +74,14 @@ namespace contract_light
       {
         template <typename Context>
         static void pushInvariantOnStack(Context& ctx) NOEXCEPT{
-          ctx.provider.pushInvariantOnStack();
+          ctx.provider.contract_light_contractor().pushInvariantOnStack();
         }
 
           template <typename Context>
         static void checkInvariant(Context& ctx) NOEXCEPT{
-          ctx.provider.popInvariantFromStack();
-          if (ctx.provider.stackEmpty() && !ctx.provider.invariant()) {
+          ctx.provider.contract_light_contractor().popInvariantFromStack();
+          if (ctx.provider.contract_light_contractor().stackEmpty() &&
+            !ctx.provider.invariant()) {
             handleFailedInvariant(ctx.fileName, ctx.line);
           }
         }
@@ -99,8 +100,8 @@ namespace contract_light
         > ::type;
 
         static_assert(!has_invariant<Provider>::value ||
-          (has_invariant<Provider>::value && std::is_base_of<Contract, Provider>::value),
-          "A class that uses invariants must have the base class Contract!");
+          (has_invariant<Provider>::value && has_contractor<Provider>::value),
+          "A class that uses invariants must use CONTRACTOR!");
 
         const Context _context;
 
@@ -135,8 +136,8 @@ namespace contract_light
         > ::type;
 
         static_assert(!has_invariant<Provider>::value ||
-          (has_invariant<Provider>::value && std::is_base_of<Contract, Provider>::value),
-          "A class that uses invariants must have the base class Contract!");
+          (has_invariant<Provider>::value && has_contractor<Provider>::value),
+          "A class that uses invariants must use CONTRACTOR!");
 
         const Context _context;
         Op _op;
@@ -207,6 +208,11 @@ namespace contract_light
 }
 
 
+#define CONTRACTOR                                                            \
+public:                                                                       \
+  ::contract_light::v_100::Contract& contract_light_contractor() const { return _contract_light_contractor; } \
+private:                                                                      \
+  mutable ::contract_light::v_100::Contract _contract_light_contractor;
 
 
 #define PRECONDITION auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =                \

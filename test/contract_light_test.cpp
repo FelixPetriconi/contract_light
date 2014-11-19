@@ -13,7 +13,7 @@
 
 namespace
 {
-  class TestClassWithInvariant : public contract_light::Contract
+  class TestClassWithInvariant
   {
   public:
     int x;
@@ -50,6 +50,9 @@ namespace
       invariantWasCalled++;
       return y == 0;
     }
+
+  private:
+    CONTRACTOR
   };
 
 
@@ -236,7 +239,7 @@ TEST_F(ContractTestOnClassWithOutInvariant, ThatACallToAFailingPostConditionFire
 
 namespace 
 {
-  class TestClassMultipleConditionsAndInvariant : public contract_light::Contract
+  class TestClassMultipleConditionsAndInvariant
   {
   public:
     TestClassMultipleConditionsAndInvariant() 
@@ -258,6 +261,8 @@ namespace
     }
 
     mutable int invariantCalled;
+
+    CONTRACTOR
   };
 }
 
