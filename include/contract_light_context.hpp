@@ -15,13 +15,16 @@
 
 namespace contract_light
 {
+#ifdef HAS_INLINE_NAMESPACE
+	inline
+#endif
   namespace v_100
   {
     namespace contract_detail
     {
-
       template <typename T>
-      struct ContractContext {
+      struct ContractContext 
+      {
         using provider_type = T;
         const T& provider;
         const char* fileName;

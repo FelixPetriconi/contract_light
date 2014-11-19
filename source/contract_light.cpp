@@ -10,18 +10,22 @@
 
 #include "contract_light.hpp"
 #include <iostream>
+#include <cassert>
 
 namespace {
   void defaultHandlerFailedPrecondition(const char* filename, int lineNumber) {
     std::cout << "PreCondition failed in " << filename << ":" << lineNumber;
+    assert(0);
   }
 
   void defaultHandlerFailedPostcondition(const char* filename, int lineNumber) {
     std::cout << "PostCondition failed in " << filename << ":" << lineNumber;
+    assert(0);
   }
 
   void defaultHandlerFailedInvariant(const char* filename, int lineNumber) {
     std::cout << "Invariant failed in " << filename << ":" << lineNumber;
+    assert(0);
   }
 
   contract_light::PreConditionFailedFunction preConditionFailed = &defaultHandlerFailedPrecondition;
@@ -32,6 +36,9 @@ namespace {
 
 
 namespace contract_light {
+#ifdef HAS_INLINE_NAMESPACE
+  inline
+#endif
   namespace v_100 {
     void setHandlerFailedPreCondition(PreConditionFailedFunction h) NOEXCEPT {
       if (h != nullptr) {
@@ -56,7 +63,7 @@ namespace contract_light {
         preConditionFailed(filename, lineNumber);
       }
 
-      void handleFailedPostCondition(const char* filename, int lineNumber) {
+      void handleFailedPostCondition(const char* filename, int lineNumber) NOEXCEPT {
         postConditionFailed(filename, lineNumber);
       }
 

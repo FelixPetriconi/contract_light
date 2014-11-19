@@ -19,17 +19,49 @@
 
 namespace contract_light
 {
+#ifdef HAS_INLINE_NAMESPACE
+  inline
+#endif
   namespace v_100 {
-    using PreConditionFailedFunction = void(*)(const char*, int);
+    /**
+     * Function signature to handle failed preconditions
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
+    using PreConditionFailedFunction = void(*)(const char* fileName, int line);
 
+    /**
+     * Function signature to handle failed postconditions
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
     using PostConditionFailedFunction = void(*)(const char*, int);
 
+    /**
+     * Function signature to handle failed invariants
+     * @fileName The file where the precondition was defined that failed
+     * @line The line number where the precondition was defined that failed
+     */
     using InvariantFailedFunction = void(*)(const char*, int);
 
+    /**
+      * Set an alternate pre condition failed handler. The default version
+      * just prints the failure location to std::cout
+      */
     void setHandlerFailedPreCondition(PreConditionFailedFunction) NOEXCEPT;
 
+    /**
+      * Set an alternate post condition failed handler. The default version
+      * just prints the failure location to std::cout
+      * The function itself must not throw!
+      */
     void setHandlerFailedPostCondition(PostConditionFailedFunction) NOEXCEPT;
 
+    /**
+      * Set an alternate invariant failed handler. The default version
+      * just prints the failure location to std::cout
+      * The function itself must not throw!
+      */
     void setHandlerFailedInvariant(InvariantFailedFunction) NOEXCEPT;
 
 
@@ -54,10 +86,9 @@ namespace contract_light
 
     namespace contract_detail 
     {
-
       void handleFailedPreCondition(const char* filename, int lineNumber);
 
-      void handleFailedPostCondition(const char* filename, int lineNumber);
+      void handleFailedPostCondition(const char* filename, int lineNumber) NOEXCEPT;
 
       void handleFailedInvariant(const char* filename, int lineNumber) NOEXCEPT;
 
@@ -66,7 +97,7 @@ namespace contract_light
         template <typename C>
         static void pushInvariantOnStack(C&) NOEXCEPT{}
 
-          template <typename C>
+        template <typename C>
         static void checkInvariant(C&) NOEXCEPT{}
       };
 
@@ -77,7 +108,7 @@ namespace contract_light
           ctx.provider.contract_light_contractor().pushInvariantOnStack();
         }
 
-          template <typename Context>
+        template <typename Context>
         static void checkInvariant(Context& ctx) NOEXCEPT{
           ctx.provider.contract_light_contractor().popInvariantFromStack();
           if (ctx.provider.contract_light_contractor().stackEmpty() &&
@@ -91,13 +122,11 @@ namespace contract_light
       template <typename Context, typename Op>
       class PreCondition
       {
-      public:
         using Provider = typename Context::provider_type;
-        using InvariantPolicy = typename std::conditional <
-          has_invariant<Provider>::value,
-          InvariantPolicy,
-          NoInvariantPolicy
-        > ::type;
+
+        using InvariantPolicy = IF_t<has_invariant<Provider>::value, 
+                                     InvariantPolicy, 
+                                     NoInvariantPolicy>;
 
         static_assert(!has_invariant<Provider>::value ||
           (has_invariant<Provider>::value && has_contractor<Provider>::value),
@@ -106,9 +135,8 @@ namespace contract_light
         const Context _context;
 
       public:
-        PreCondition(Context&& ctx, Op&& op)
-          : _context(std::forward<Context>(ctx))
-        {
+        PreCondition(Context&& ctx, Op&& op) : _context(std::forward<Context>(ctx)) {
+          
           static_assert(std::is_same<bool, decltype(op())>::value,
             "Pre-Condition must be a callable object returning a boolean");
 
@@ -129,11 +157,10 @@ namespace contract_light
       class PostCondition
       {
         using Provider = typename Context::provider_type;
-        using InvariantPolicy = typename std::conditional <
-          has_invariant<Provider>::value,
-          InvariantPolicy,
-          NoInvariantPolicy
-        > ::type;
+
+        using InvariantPolicy = IF_t<has_invariant<Provider>::value,
+                                      InvariantPolicy,
+                                      NoInvariantPolicy>;
 
         static_assert(!has_invariant<Provider>::value ||
           (has_invariant<Provider>::value && has_contractor<Provider>::value),
@@ -145,8 +172,8 @@ namespace contract_light
       public:
         PostCondition(Context&& ctx, Op&& op)
           : _context(std::forward<Context>(ctx))
-          , _op(std::forward<Op>(op))
-        {
+          , _op(std::forward<Op>(op)) {
+          
           static_assert(std::is_same<bool, decltype(op())>::value,
             "Post-Condition must be a callable object returning a boolean");
 
@@ -184,16 +211,14 @@ namespace contract_light
 
 
       template <typename T, typename Op>
-      PreCondition<PreConditionContext<T>, Op> operator+(PreConditionContext<T>&& ctx, Op&& op)
-      {
+      PreCondition<PreConditionContext<T>, Op> operator+(PreConditionContext<T>&& ctx, Op&& op) {
         using Context = PreConditionContext < T > ;
         return PreCondition<Context, Op>(std::forward<Context>(ctx), std::forward<Op>(op));
       }
 
 
       template <typename T, typename Op>
-      PostCondition<PostConditionContext<T>, Op> operator+(PostConditionContext<T>&& ctx, Op&& op)
-      {
+      PostCondition<PostConditionContext<T>, Op> operator+(PostConditionContext<T>&& ctx, Op&& op) {
         using Context = PostConditionContext < T > ;
         return PostCondition<Context, Op>(std::forward<Context>(ctx), std::forward<Op>(op));
       }
@@ -204,7 +229,9 @@ namespace contract_light
       }
     }
   }
+#ifndef HAS_INLINE_NAMESPACE
   using namespace v_100;
+#endif
 }
 
 
@@ -214,13 +241,28 @@ public:                                                                       \
 private:                                                                      \
   mutable ::contract_light::v_100::Contract _contract_light_contractor;
 
-
+/**
+ * Defines a precondtion. Must be followed by a callable object.
+ * Several ones can be defined within a single function
+ * the current scope is left. As well the invariant is checked whenever one is defined.
+ * E.g. PRECONDITION [this]{ return myMember_ > 42;};
+  */
 #define PRECONDITION auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =                \
       ::contract_light::contract_detail::PreConditionContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__) + 
 
+/**
+ * Defines a postcondtion. Must be followed by a callable object.
+ * Several ones can be defined within a single function. The check is executed whenever
+ * the current scope is left. As well the invariant is checked whenever one is defined.
+ * E.g. POSTCONDITION [this]{ return result > 42;};
+  */
 #define POSTCONDITION auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =               \
       ::contract_light::contract_detail::PostConditionContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__) + 
 
+/**
+ * Defines that the invariant shall be called whenever the current scope is left
+ * E.g. INVARIANT;
+  */
 #define INVARIANT auto ANONYMOUS_VARIABLE(CONTRACT_STATE) =                   \
       ::contract_light::contract_detail::makeInvariant(::contract_light::contract_detail::ContractContext<std::remove_reference<decltype(*this)>::type>(*this, __FILE__, __LINE__));
 

@@ -58,7 +58,17 @@ public:
 
 Documentation
 -------------
-  to be done
+|Keyword                        |Meaning                            |
+--------------------------------|-----------------------------------
+| PRECONDITION                  | Specifies the following callable expression as precondition. This is executed at the point of definition. As well an available invariant is registered to be executed whenever the current scope is left. |
+| POSTCONDITION                 | Specifies the following callable expression as postcondition. This gets executed  in the moment of leaving the current scope. Whenever a precondition is defined before and an invariant is available, then the invariant is executed only once after the most recent postcondition. |
+| INVARIANT                     | Executes the defined invariant at that location |
+| setHandlerFailedPreCondition  | Set a private handler function that gets called whenever a precondition is not fulfilled. This function may throw. |
+| setHandlerFailedPostCondition | Set a private handler function that gets called whenever a postcondition is not fulfilled. This function must not throw. |
+| setHandlerFailedInvariant     | Set a private handler function that gets called whenever the invariant is not fulfilled. this function must no throw. |
+
+
+
 
 Author 
 ------
